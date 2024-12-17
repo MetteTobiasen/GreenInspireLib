@@ -23,4 +23,25 @@ public partial class Category
     [ForeignKey("CategoryId")]
     [InverseProperty("Categories")]
     public virtual ICollection<Newsfeed> Newsfeeds { get; set; } = new List<Newsfeed>();
+
+    public void ValidateCategoryNameLength()
+    {
+        if (string.IsNullOrEmpty(CategoryName))
+        {
+            throw new ArgumentOutOfRangeException("Category name cannot be empty");
+        }
+        if (CategoryName.Length <= 1)
+        {
+            throw new ArgumentOutOfRangeException("Category name must be longer than 1 character");
+        }
+        if (CategoryName.Length > 30)
+        {
+            throw new ArgumentOutOfRangeException("Category name must be shorter than 30 characters");
+        }
+    }
+
+    public void Validate()
+    {
+        ValidateCategoryNameLength();
+    }
 }
