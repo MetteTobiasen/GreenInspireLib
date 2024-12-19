@@ -78,17 +78,6 @@ public partial class Newsfeed
         {
             throw new ArgumentException("Image path cannot be null or empty.", nameof(NewsfeedImage));
         }
-
-        using (var ms = new MemoryStream(NewsfeedImage))
-        {
-            using (var image = Image.FromStream(ms)) 
-            {
-                if (image.Width > 1920 || image.Height > 1080) 
-                {
-                    throw new ArgumentException("Image resolution cannot exceed 1920x1080 pixels.", nameof(NewsfeedImage));
-                }
-            }
-        }
     }
 
     public void Validate()
