@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using static System.Net.Mime.MediaTypeNames;
+
 
 namespace GreenInspireLib.Models;
 
@@ -43,4 +46,54 @@ public partial class Newsfeed
     [ForeignKey("NewsfeedId")]
     [InverseProperty("Newsfeeds")]
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    public void ValidateNewsfeedTitle()
+    {
+        if (string.IsNullOrWhiteSpace(Title))
+        {
+            throw new ArgumentException("Title cannot be empty");
+        }
+        if (Title.Length > 30)
+        {
+            throw new ArgumentOutOfRangeException("Title cannot be longer than 30 characters");
+        }
+        
+    }
+
+    public void ValidateNewsfeedText()
+    {
+        if (string.IsNullOrWhiteSpace(NewsfeedText))
+        {
+            throw new ArgumentException("Newsfeed text cannot be empty");
+        }
+        if (NewsfeedText.Length > 500)
+        {
+            throw new ArgumentOutOfRangeException("Newsfeed text cannot be longer than 500 characters");
+        }
+    }
+
+    public void ValidateImage()
+    {
+        if (NewsfeedImage == null || NewsfeedImage.Length == 0)
+        {
+            throw new ArgumentException("Image path cannot be null or empty.", nameof(NewsfeedImage));
+        }
+
+        using (var ms = new MemoryStream(NewsfeedImage))
+        {
+            using (var image = Image.FromStream(ms)) 
+            {
+                if (image.Width > 1920 || image.Height > 1080) 
+                {
+                    throw new ArgumentException("Image resolution cannot exceed 1920x1080 pixels.", nameof(NewsfeedImage));
+                }
+            }
+        }
+    }
+
+    public void Validate()
+    {
+        ValidateNewsfeedTitle();
+        ValidateNewsfeedText();
+    }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GreenInspireLib.Interfaces
 {
-    public interface GreenInspireCsService
+    public interface IGreenInspireCsService
     {
     }
 }
