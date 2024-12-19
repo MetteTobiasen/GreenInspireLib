@@ -72,14 +72,6 @@ public partial class Newsfeed
         }
     }
 
-    public void ValidateImage()
-    {
-        if (NewsfeedImage == null || NewsfeedImage.Length == 0)
-        {
-            throw new ArgumentException("Image path cannot be null or empty.", nameof(NewsfeedImage));
-        }
-    }
-
     public void Validate()
     {
         ValidateNewsfeedTitle();
