@@ -74,6 +74,7 @@ namespace GreenInspireLib.Services
                 throw new ArgumentException("There are no categories with the given id");
             }
             categoryToUpdate.CategoryName = newCategory.CategoryName.First().ToString().ToUpper() + newCategory.CategoryName.Substring(1).ToLower();
+            SqlContext.Update(categoryToUpdate);
             SqlContext.SaveChanges();
             return categoryToUpdate;
         }

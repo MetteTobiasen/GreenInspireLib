@@ -113,7 +113,7 @@ namespace GreenInspireLib.Services
             {
                 Byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
 
-                return System.IO.File.ReadAllBytes(imagePath);
+                return bytes;
             }
             catch (FileNotFoundException ex)
             {

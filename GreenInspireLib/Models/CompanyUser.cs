@@ -53,4 +53,51 @@ public partial class CompanyUser
 
     [InverseProperty("CompanyUser")]
     public virtual ICollection<Newsfeed> Newsfeeds { get; set; } = new List<Newsfeed>();
+
+    public void ValidateUserName()
+    {
+        if (CompanyName == null) throw new ArgumentNullException("Navn skal udfyldes");
+        if (CompanyName.Length < 1) throw new ArgumentOutOfRangeException("Navnet skal være mimimum 1 karakter lang");
+        if (CompanyName.Length > 25) throw new ArgumentOutOfRangeException("Navnet må max være 25 karaktere");
+    }
+
+    public void ValidateCompanyCVR()
+    {
+        if (CompanyCvr != 8) throw new ArgumentOutOfRangeException("CVR nummer skal være 8 cifre langt");
+    }
+
+    public void ValidateCompanySize()
+    {
+        if (!(CompanySize.Equals("Stor") || CompanySize.Equals("Mellem") || CompanySize.Equals("Lille")))
+        {
+            throw new ArgumentException("Du skal vælge mellem (Lille, Mellem eller Stor)");
+        }
+    } 
+
+    public void ValidateLogo()
+    {
+        if (CompanyLogo == null) throw new ArgumentNullException("Indsæt logo");
+    }
+
+    public void ValidateEmail()
+    {
+        if (Email == null) throw new ArgumentNullException("Udfyld email");
+        if (!Email.Contains("@")) throw new ArgumentException("Indeholder ikke @, udfyld email");
+    }
+
+    public void ValidatePassword()
+    {
+        if (UserPassword == null) throw new ArgumentNullException("Udfyld password"); 
+        if (UserPassword.Length < 8) throw new ArgumentOutOfRangeException("Passwordet skal være minimum 8 karaktere langt");
+    }
+
+    public void Validate()
+    {    
+        ValidateUserName();
+        ValidateLogo();
+        ValidateCompanyCVR();
+        ValidateCompanySize();       
+        ValidateEmail();
+        ValidatePassword();       
+    }
 }
