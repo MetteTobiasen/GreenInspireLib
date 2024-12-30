@@ -97,7 +97,7 @@ namespace GreenInspireLib.Services
             }
             newsfeedToUpdate.Title = newNewsfeed.Title.First().ToString().ToUpper() + newNewsfeed.Title.Substring(1).ToLower();
             newsfeedToUpdate.NewsfeedText = newNewsfeed.NewsfeedText.First().ToString().ToUpper() + newNewsfeed.NewsfeedText.Substring(1);
-            newsfeedToUpdate.NewsfeedImage = ConvertImageToByte(imagePath??); // Use empty string if imagePath is null
+            newsfeedToUpdate.NewsfeedImage = ConvertImageToByte(imagePath); // Use empty string if imagePath is null
             SqlContext.Update(newsfeedToUpdate);
             SqlContext.SaveChanges(); 
             return newsfeedToUpdate;
