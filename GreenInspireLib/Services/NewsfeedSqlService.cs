@@ -89,15 +89,13 @@ namespace GreenInspireLib.Services
         public Newsfeed UpdateNewsfeed(Newsfeed newNewsfeed, string? imagePath)
         {
             newNewsfeed.Validate();
-
-            var newsfeedToUpdate = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newNewsfeed.NewsfeedId);
-            if (newsfeedToUpdate == null)
-            {
-                throw new ArgumentException("There are no newsfeeds with the given id");
-            }
+            var newsfeedToUpdate = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newNewsfeed.NewsfeedId) 
+                ?? throw new ArgumentException("There are no newsfeeds with the given id");   
+            //Update newsfeed if not null and validate ok
             newsfeedToUpdate.Title = newNewsfeed.Title.First().ToString().ToUpper() + newNewsfeed.Title.Substring(1).ToLower();
-            newsfeedToUpdate.NewsfeedText = newNewsfeed.NewsfeedText.First().ToString().ToUpper() + newNewsfeed.NewsfeedText.Substring(1);
-            newsfeedToUpdate.NewsfeedImage = ConvertImageToByte(imagePath); // Use empty string if imagePath is null
+            newsfeedToUpdate.NewsfeedText = newNewsfeed.NewsfeedText.First().ToString().ToUpper() + newNewsfeed.NewsfeedText.Substring(1);            
+            if(imagePath != null) newsfeedToUpdate.NewsfeedImage = ConvertImageToByte(imagePath);                    
+            newsfeedToUpdate.NewsfeedTimestamp = DateTime.Now;
             SqlContext.Update(newsfeedToUpdate);
             SqlContext.SaveChanges(); 
             return newsfeedToUpdate;
@@ -105,10 +103,7 @@ namespace GreenInspireLib.Services
 
         public Byte[] ConvertImageToByte(string imagePath) 
         {
-            if (string.IsNullOrWhiteSpace(imagePath))
-            {
-                throw new ArgumentException("Image path cannot be null or empty.", nameof(imagePath));
-            }
+            //if (string.IsNullOrWhiteSpace(imagePath)) throw new ArgumentException("Image path cannot be null or empty.", nameof(imagePath));           
             try
             {
                 Byte[] bytes = System.IO.File.ReadAllBytes(imagePath);

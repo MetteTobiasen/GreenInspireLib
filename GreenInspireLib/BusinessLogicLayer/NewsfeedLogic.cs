@@ -31,7 +31,7 @@ namespace GreenInspireLib.BusinessLogicLayer
                 Newsfeed newsfeed;
             }
 
-        public void /*IEnumerable<(Category, Newsfeed)>*/ AddNewsfeedWithTransaction(Category category, Newsfeed newsfeed, string newsfeedImageFile, int userId)
+        public void /*IEnumerable<(Category, Newsfeed)>*/ AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
         {
             //List<(Category, Newsfeed)> values = new List<(Category, Newsfeed)>();
             using (var transaction = SqlContext.Database.BeginTransaction())
@@ -39,7 +39,8 @@ namespace GreenInspireLib.BusinessLogicLayer
                 try
                 {
                     NewsfeedSqlService.AddNewsfeed(newsfeed, newsfeedImageFile, userId);
-                    CategorySqlService.AddCategory(category);
+                    CategorySqlService.AddCategory(categoryName);
+                    AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
                     transaction.Commit();
                     //values.AddRange(category, newsfeed);
                     //return values;
@@ -57,25 +58,18 @@ namespace GreenInspireLib.BusinessLogicLayer
             using(var  transaction = SqlContext.Database.BeginTransaction())
             {
                 try
-                {
-                    var newCategory = new Category();
-                    var oldCategory = SqlContext.Categories.FirstOrDefault(c => c.CategoryId == userId);
-                    if ((categoryName != null) && !CategorySqlService.CategoryExists(categoryName) && oldCategory != null)
-                    {                       
-                        newCategory.CategoryName = categoryName;
-                        newCategory.Newsfeeds.Add(newsfeed);
-                        newCategory.Validate();
-                        CategorySqlService.AddCategory(newCategory);
-                        oldCategory.Newsfeeds.Remove(newsfeed);
-                    }
-                    //if (newsfeedImageFile != null)
-                    //{
-                    //    Byte[] newImage = NewsfeedSqlService.ConvertImageToByte(newsfeedImageFile);
-                    //    newsfeed.NewsfeedImage = newImage;
-                    //}
-                    newsfeed.NewsfeedTimestamp = DateTime.Now;
-                    newsfeed.Categories.Add(newCategory);
-                    Newsfeed updatedNewsfeed = NewsfeedSqlService.UpdateNewsfeed(newsfeed, newsfeedImageFile);
+                {                                     
+                    //Updates the newsfeed
+                    NewsfeedSqlService.UpdateNewsfeed(newsfeed, newsfeedImageFile);            
+                    if (categoryName != null)
+                    {
+                        //Add the new category if not null and not exist already
+                        CategorySqlService.AddCategory(categoryName);
+                        //Add the newsfeed to the new category newsfeedList
+                        AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
+                        //Removes the newsfeed from the old category newsfeed list
+                        RemoveNewsfeedFromCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
+                    }                                  
                     transaction.Commit();
                 }
                 catch (SqlException ex)
@@ -83,11 +77,34 @@ namespace GreenInspireLib.BusinessLogicLayer
                     transaction.Rollback();
                     throw new ArgumentException($"The newsfeed has not been updated, an error occurred: {ex}");
                 }
-                
-            
-            
-            }
-            
+            }          
+        }
+
+        public Category AddNewsfeedToCategoryNewsfeedList(string categoryName, int newsfeedId)
+        {   
+            Newsfeed newsfeedToAddToCategoryNewsfeedList = new Newsfeed();
+            newsfeedToAddToCategoryNewsfeedList = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId)
+                ?? throw new AggregateException("Newsfeed not found with that newsfeed id");
+            Category categoryNewsfeedListToUpdate = new Category();
+            categoryNewsfeedListToUpdate = SqlContext.Categories.FirstOrDefault(c => c.CategoryName.ToLower() == categoryName.ToLower()) 
+                ?? throw new AggregateException("category with that categoryname not found");
+            categoryNewsfeedListToUpdate.Newsfeeds.Add(newsfeedToAddToCategoryNewsfeedList);
+            SqlContext.Update(categoryNewsfeedListToUpdate);
+            SqlContext.SaveChanges();
+            return categoryNewsfeedListToUpdate;
+        }
+
+        public Category RemoveNewsfeedFromCategoryNewsfeedList(string categoryName, int newsfeedId) 
+        {
+            Category ?category = SqlContext.Categories.FirstOrDefault(c => c.CategoryName == categoryName.ToLower()) 
+                ?? throw new ArgumentException("Categoryname don't exsist");
+            Newsfeed? newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId) 
+                ?? throw new ArgumentException("Newsfeed with that id don't exist");
+            // if category and newsfeed not null
+            category.Newsfeeds.Remove(newsfeed);
+            SqlContext.Update(category);
+            SqlContext.SaveChanges();
+            return category;              
         }
     }
 }

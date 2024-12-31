@@ -37,17 +37,15 @@ namespace GreenInspireLib.Services
             return category;
         }
 
-        public Category AddCategory(Category category)
+        public Category AddCategory(string categoryName)
         {
-            category.Validate();
-            if(CategoryExists(category.CategoryName))
-            {
-                throw new ArgumentException("Category already exists");
-            }
-            category.CategoryName = category.CategoryName.First().ToString().ToUpper() + category.CategoryName.Substring(1).ToLower();
-            SqlContext.Categories.Add(category);
+            if(CategoryExists(categoryName)) throw new ArgumentException("Category already exists");
+            Category newCategory = new Category();
+            newCategory.CategoryName = categoryName.First().ToString().ToUpper() + categoryName.Substring(1).ToLower();
+            newCategory.Validate();
+            SqlContext.Categories.Add(newCategory);
             SqlContext.SaveChanges();
-            return category;
+            return newCategory;
         }
 
         public void DeleteCategory(int categoryId)
