@@ -1,7 +1,9 @@
+using GreenInspireAPI.AuthenticationData;
 using GreenInspireLib.BusinessLogicLayer;
 using GreenInspireLib.Models;
 using GreenInspireLib.Services;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<GreenInspireContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GreenInspireLocalDB")));
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddTransient<CategorySqlService, CategorySqlService>();    
 builder.Services.AddTransient<NewsfeedSqlService, NewsfeedSqlService>();    
