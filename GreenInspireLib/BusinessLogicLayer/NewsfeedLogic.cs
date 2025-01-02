@@ -25,25 +25,18 @@ namespace GreenInspireLib.BusinessLogicLayer
             this.NewsfeedSqlService = newsfeedSqlService;
         }
         
-        struct Values
-            {
-                Category category;
-                Newsfeed newsfeed;
-            }
-
-        public void /*IEnumerable<(Category, Newsfeed)>*/ AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
+        public Newsfeed AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
         {
-            //List<(Category, Newsfeed)> values = new List<(Category, Newsfeed)>();
+            Newsfeed newNewsfeed = new Newsfeed();
             using (var transaction = SqlContext.Database.BeginTransaction())
             {
                 try
                 {
-                    NewsfeedSqlService.AddNewsfeed(newsfeed, newsfeedImageFile, userId);
+                    newNewsfeed = NewsfeedSqlService.AddNewsfeed(newsfeed, newsfeedImageFile, userId);
                     CategorySqlService.AddCategory(categoryName);
                     AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
-                    transaction.Commit();
-                    //values.AddRange(category, newsfeed);
-                    //return values;
+                    transaction.Commit();                    
+                    return newNewsfeed;
                 }
                 catch (SqlException ex) 
                 { 
