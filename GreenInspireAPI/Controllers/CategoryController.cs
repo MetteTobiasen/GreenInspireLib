@@ -18,7 +18,7 @@ namespace GreenInspireAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Category>> Get([FromQuery] string? searchQuery)
+        public ActionResult<IEnumerable<Category>> GetAllCategories([FromQuery] string? searchQuery)
         {
             var category = _sqlService.GetCategories(searchQuery);
             if (category == null  || !category.Any())
@@ -30,27 +30,33 @@ namespace GreenInspireAPI.Controllers
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult<Category> GetCategoryById(int id)
         {
-            return "value";
+            var category = _sqlService.GetCategoryById(id);
+            if (category == null)
+            {
+                return NoContent();
+            }
+            return Ok(category);
         }
 
         // POST api/<CategoryController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        //[HttpPost]
+        //public void AddCategory([FromBody] string value)
+        //{
+
+        //}
 
         // PUT api/<CategoryController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //[HttpPut("{id}")]
+        //public void UpdateCateogory(int id, [FromBody] string value)
+        //{
+        //}
 
         // DELETE api/<CategoryController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //[HttpDelete("{id}")]
+        //public void DeleteCategory(int id)
+        //{
+        //}
     }
 }
