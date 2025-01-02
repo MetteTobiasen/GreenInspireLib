@@ -2,10 +2,20 @@ using GreenInspireAPI.AuthenticationData;
 using GreenInspireLib.BusinessLogicLayer;
 using GreenInspireLib.Models;
 using GreenInspireLib.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(
+        options => {
+            options.SignIn.RequireConfirmedAccount = false;
+
+            //Other options go here
+        }
+        )
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddCors(options =>
 {
@@ -22,15 +32,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddDbContext<GreenInspireContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("GreenInspireLocalDB")));
+builder.Services.AddDbContext<GreenInspireContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GreenInspireLocalDB")));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddTransient<CategorySqlService, CategorySqlService>();    
-//builder.Services.AddTransient<NewsfeedSqlService, NewsfeedSqlService>();    
-//builder.Services.AddTransient<NewsfeedLogic,  NewsfeedLogic>();
+builder.Services.AddTransient<CategorySqlService, CategorySqlService>();
+builder.Services.AddTransient<NewsfeedSqlService, NewsfeedSqlService>();
+builder.Services.AddTransient<NewsfeedLogic, NewsfeedLogic>();
+
 
 var app = builder.Build();
 
@@ -44,6 +55,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
