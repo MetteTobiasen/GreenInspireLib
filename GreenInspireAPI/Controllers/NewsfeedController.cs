@@ -1,5 +1,12 @@
 ﻿using GreenInspireLib.BusinessLogicLayer;
+using GreenInspireLib.Models;
+using GreenInspireLib.DTO;
+using GreenInspireLib.Services;
 using Microsoft.AspNetCore.Mvc;
+using Azure.Core.Serialization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,42 +16,69 @@ namespace GreenInspireAPI.Controllers
     [ApiController]
     public class NewsfeedController : ControllerBase
     {
-        private NewsfeedLogic newsfeedLogic;
+        private NewsfeedLogic _newsfeedLogic;
+        private NewsfeedSqlService _newsfeedSqlService;
         
-        public NewsfeedController(NewsfeedLogic newsfeedLogic)
+        public NewsfeedController(NewsfeedLogic newsfeedLogic, NewsfeedSqlService newsfeedSqlService)
         {
-            this.newsfeedLogic = newsfeedLogic;
+            _newsfeedLogic = newsfeedLogic;
+            _newsfeedSqlService = newsfeedSqlService;
         }
 
         [HttpGet]
-        public IEnumerable<string> Get()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public ActionResult<IEnumerable<NewsfeedWithCategoryDTO>> GetAllNewsfeeds([FromQuery] string? searchQuery)
         {
-            return new string[] { "value1", "value2" };
+            var newsfeeds = _newsfeedLogic.GetAllNewsfeedsWithCategory(searchQuery);
+            if (newsfeeds == null || !newsfeeds.Any())
+            {
+                return NoContent();
+            }
+            return Ok(newsfeeds);
+
         }
 
-        // GET api/<NewsfeedController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public ActionResult<Newsfeed> GetNewsfeedById(int id)
         {
-            return "value";
+            var newsfeed = _newsfeedSqlService.GetNewsfeedById(id);
+            if (newsfeed == null)
+            {
+                return NoContent();
+            }
+            return Ok(newsfeed);
         }
 
-        // POST api/<NewsfeedController>
         [HttpPost]
-        public void Post([FromBody] string value)
-        {
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Newsfeed> Post([FromBody] Newsfeed newsfeed, string newsfeedImagePath, string categoryName)
+        {        
+            try
+            {
+                //var category = newsfeed.Categories.FirstOrDefault();
+                //if (category == null) throw new ArgumentException("Category not found");
+                _newsfeedLogic.AddNewsfeedWithTransaction(categoryName, newsfeed, newsfeedImagePath, newsfeed.CompanyUserId);
+                return Created("/" + newsfeed.NewsfeedId, newsfeed);
+            } 
+            catch (Exception ex) 
+            {
+                return BadRequest(ex.Message);  
+            }
         }
 
-        // PUT api/<NewsfeedController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
 
-        // DELETE api/<NewsfeedController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //// DELETE api/<NewsfeedController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
     }
 }

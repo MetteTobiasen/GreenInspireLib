@@ -41,6 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddTransient<CategorySqlService, CategorySqlService>();
 builder.Services.AddTransient<NewsfeedSqlService, NewsfeedSqlService>();
 builder.Services.AddTransient<NewsfeedLogic, NewsfeedLogic>();
+builder.Services.AddTransient<CompanyUserSqlService, CompanyUserSqlService>();
 
 
 var app = builder.Build();

@@ -1,6 +1,8 @@
 ﻿using GreenInspireLib.Models;
 using GreenInspireLib.Services;
 using Microsoft.Data.SqlClient;
+using GreenInspireLib.DTO;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using NUnit.Framework;
 using System;
@@ -24,7 +26,34 @@ namespace GreenInspireLib.BusinessLogicLayer
             this.CategorySqlService = categorySqlService;
             this.NewsfeedSqlService = newsfeedSqlService;
         }
-        
+
+        public IEnumerable<NewsfeedWithCategoryDTO> GetAllNewsfeedsWithCategory(string? searchQuery=null)
+        {
+            List<NewsfeedWithCategoryDTO> newsfeedsWithCategory = new List<NewsfeedWithCategoryDTO>();
+            var newsfeeds = NewsfeedSqlService.GetNewsfeeds(searchQuery);
+            
+            foreach(var news in newsfeeds)
+            {
+                
+                var category = news.Categories.FirstOrDefault();
+                if (category == null) throw new ArgumentException("category findes ikke");
+                NewsfeedWithCategoryDTO objetToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, category.CategoryName); 
+                newsfeedsWithCategory.Add(objetToAdd);                 
+            }          
+            return newsfeedsWithCategory;
+        }
+
+        public NewsfeedWithCategoryDTO GetNewsfeedWithCategoryById(int newsfeedId) 
+        {
+            var newsfeed = NewsfeedSqlService.GetNewsfeedById(newsfeedId);
+            if (newsfeed == null) throw new ArgumentException("Newsfeed don't exist with that id");
+            var category = newsfeed.Categories.FirstOrDefault();
+            if (category == null) throw new ArgumentException("can't find any category");
+            NewsfeedWithCategoryDTO newsfeedWithCategory = new NewsfeedWithCategoryDTO(newsfeed, newsfeed.CompanyUserId, category.CategoryName);
+            return newsfeedWithCategory;
+
+        }
+
         public Newsfeed AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
         {
             Newsfeed newNewsfeed = new Newsfeed();
