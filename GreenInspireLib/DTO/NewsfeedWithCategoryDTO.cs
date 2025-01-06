@@ -9,13 +9,15 @@ namespace GreenInspireLib.DTO
 {
     public class NewsfeedWithCategoryDTO
     {
-        private int newsfeedId;
-        private byte[] newsfeedImage;
-        private string newsfeedTitle;
-        private string newsfeedText;
-        private DateTime newsfeedTimestamp;
-        private int companyUserId;
-        private string categoryName;
+
+        public int newsfeedId { get; private set; }
+        public byte[] newsfeedImage { get; private set; }
+        public string newsfeedTitle { get; private set; }
+        public string newsfeedText { get; private set; }
+        public DateTime newsfeedTimestamp { get; private set; }
+        public int companyUserId { get; private set; }
+        public string categoryName { get; private set; }
+
         public NewsfeedWithCategoryDTO(Newsfeed newsfeed, int companyUserId, string categoryName)
         {
             this.newsfeedId = newsfeed.NewsfeedId;  

@@ -18,7 +18,7 @@ namespace GreenInspireAPI.Controllers
     {
         private NewsfeedLogic _newsfeedLogic;
         private NewsfeedSqlService _newsfeedSqlService;
-        
+
         public NewsfeedController(NewsfeedLogic newsfeedLogic, NewsfeedSqlService newsfeedSqlService)
         {
             _newsfeedLogic = newsfeedLogic;
@@ -56,29 +56,55 @@ namespace GreenInspireAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<Newsfeed> Post([FromBody] Newsfeed newsfeed, string newsfeedImagePath, string categoryName)
-        {        
+        {
             try
             {
                 //var category = newsfeed.Categories.FirstOrDefault();
                 //if (category == null) throw new ArgumentException("Category not found");
                 _newsfeedLogic.AddNewsfeedWithTransaction(categoryName, newsfeed, newsfeedImagePath, newsfeed.CompanyUserId);
                 return Created("/" + newsfeed.NewsfeedId, newsfeed);
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);  
+                return BadRequest(ex.Message);
             }
         }
 
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+        [HttpPost("AddNewsfeedToCategory")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Category> AddNewsfeedToCategory([FromBody] string categoryName, int newsfeedId )
+        {
+            try
+            {
+                var category = _newsfeedLogic.AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeedId);
 
-        //// DELETE api/<NewsfeedController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+                return Created( "/" + category.CategoryId, category);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("AddCategoryToNewsfeed")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Newsfeed> AddCategoryToNewsfeed([FromBody] string categoryName, int newsfeedId)
+        {
+            try
+            {
+                var newsfeed = _newsfeedLogic.AddCategoryToNewsfeedCategoryList(categoryName, newsfeedId);
+
+                return Created("/" + newsfeed.NewsfeedId, newsfeed);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
     }
 }

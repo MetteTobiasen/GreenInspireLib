@@ -27,23 +27,25 @@ namespace GreenInspireLib.BusinessLogicLayer
             this.NewsfeedSqlService = newsfeedSqlService;
         }
 
-        public IEnumerable<NewsfeedWithCategoryDTO> GetAllNewsfeedsWithCategory(string? searchQuery=null)
+        
+
+        public IEnumerable<NewsfeedWithCategoryDTO> GetAllNewsfeedsWithCategory(string? searchQuery = null)
         {
             List<NewsfeedWithCategoryDTO> newsfeedsWithCategory = new List<NewsfeedWithCategoryDTO>();
             var newsfeeds = NewsfeedSqlService.GetNewsfeeds(searchQuery);
-            
-            foreach(var news in newsfeeds)
+
+            foreach (var news in newsfeeds)
             {
-                
-                var category = news.Categories.FirstOrDefault();
-                if (category == null) throw new ArgumentException("category findes ikke");
-                NewsfeedWithCategoryDTO objetToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, category.CategoryName); 
-                newsfeedsWithCategory.Add(objetToAdd);                 
-            }          
+                //var category = news.Categories.FirstOrDefault();
+                //if (category == null) throw new ArgumentException("category findes ikke");
+                string category = "Energi og ressourcer";
+                NewsfeedWithCategoryDTO objektToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, category /*category.CategoryName*/);
+                newsfeedsWithCategory.Add(objektToAdd);
+            }
             return newsfeedsWithCategory;
         }
 
-        public NewsfeedWithCategoryDTO GetNewsfeedWithCategoryById(int newsfeedId) 
+        public NewsfeedWithCategoryDTO GetNewsfeedWithCategoryById(int newsfeedId)
         {
             var newsfeed = NewsfeedSqlService.GetNewsfeedById(newsfeedId);
             if (newsfeed == null) throw new ArgumentException("Newsfeed don't exist with that id");
@@ -62,27 +64,29 @@ namespace GreenInspireLib.BusinessLogicLayer
                 try
                 {
                     newNewsfeed = NewsfeedSqlService.AddNewsfeed(newsfeed, newsfeedImageFile, userId);
+                    AddCategoryToNewsfeedCategoryList(categoryName, newsfeed.NewsfeedId);
                     CategorySqlService.AddCategory(categoryName);
                     AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
-                    transaction.Commit();                    
+
+                    transaction.Commit();
                     return newNewsfeed;
                 }
-                catch (SqlException ex) 
-                { 
+                catch (SqlException ex)
+                {
                     transaction.Rollback();
                     throw new ArgumentException($"The newsfeed has not been saved, an error occurred: {ex}");
                 }
             }
         }
-        
+
         public void UpdateNewsfeedWithTransaction(string? categoryName, Newsfeed newsfeed, int userId, string? newsfeedImageFile = null)
         {
-            using(var  transaction = SqlContext.Database.BeginTransaction())
+            using (var transaction = SqlContext.Database.BeginTransaction())
             {
                 try
-                {                                     
+                {
                     //Updates the newsfeed
-                    NewsfeedSqlService.UpdateNewsfeed(newsfeed, newsfeedImageFile);            
+                    NewsfeedSqlService.UpdateNewsfeed(newsfeed, newsfeedImageFile);
                     if (categoryName != null)
                     {
                         //Add the new category if not null and not exist already
@@ -91,7 +95,7 @@ namespace GreenInspireLib.BusinessLogicLayer
                         AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
                         //Removes the newsfeed from the old category newsfeed list
                         RemoveNewsfeedFromCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);
-                    }                                  
+                    }
                     transaction.Commit();
                 }
                 catch (SqlException ex)
@@ -99,16 +103,16 @@ namespace GreenInspireLib.BusinessLogicLayer
                     transaction.Rollback();
                     throw new ArgumentException($"The newsfeed has not been updated, an error occurred: {ex}");
                 }
-            }          
+            }
         }
 
         public Category AddNewsfeedToCategoryNewsfeedList(string categoryName, int newsfeedId)
-        {   
+        {
             Newsfeed newsfeedToAddToCategoryNewsfeedList = new Newsfeed();
             newsfeedToAddToCategoryNewsfeedList = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId)
                 ?? throw new AggregateException("Newsfeed not found with that newsfeed id");
             Category categoryNewsfeedListToUpdate = new Category();
-            categoryNewsfeedListToUpdate = SqlContext.Categories.FirstOrDefault(c => c.CategoryName.ToLower() == categoryName.ToLower()) 
+            categoryNewsfeedListToUpdate = SqlContext.Categories.FirstOrDefault(c => c.CategoryName.ToLower() == categoryName.ToLower())
                 ?? throw new AggregateException("category with that categoryname not found");
             categoryNewsfeedListToUpdate.Newsfeeds.Add(newsfeedToAddToCategoryNewsfeedList);
             SqlContext.Update(categoryNewsfeedListToUpdate);
@@ -116,17 +120,34 @@ namespace GreenInspireLib.BusinessLogicLayer
             return categoryNewsfeedListToUpdate;
         }
 
-        public Category RemoveNewsfeedFromCategoryNewsfeedList(string categoryName, int newsfeedId) 
+        public Category RemoveNewsfeedFromCategoryNewsfeedList(string categoryName, int newsfeedId)
         {
-            Category ?category = SqlContext.Categories.FirstOrDefault(c => c.CategoryName == categoryName.ToLower()) 
+            Category? category = SqlContext.Categories.FirstOrDefault(c => c.CategoryName == categoryName.ToLower())
                 ?? throw new ArgumentException("Categoryname don't exsist");
-            Newsfeed? newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId) 
+            Newsfeed? newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId)
                 ?? throw new ArgumentException("Newsfeed with that id don't exist");
             // if category and newsfeed not null
             category.Newsfeeds.Remove(newsfeed);
             SqlContext.Update(category);
             SqlContext.SaveChanges();
-            return category;              
+            return category;
+        }
+
+        public Newsfeed AddCategoryToNewsfeedCategoryList(string categoryName, int newsfeedId)
+        {
+            Newsfeed? newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId)
+                ?? throw new ArgumentException("Newsfeed with that id don't exist");
+            Category? category = SqlContext.Categories.FirstOrDefault(c => c.CategoryName == categoryName.ToLower())
+                ?? throw new ArgumentException("Categoryname don't exsist");
+
+            // Check if the category is already associated with the newsfeed
+            if (newsfeed.Categories.Contains(category)) throw new ArgumentException("katagorien er allerede tilføjet");
+            {
+                newsfeed.Categories.Add(category);
+                SqlContext.Update(newsfeed);
+                SqlContext.SaveChanges();
+                return newsfeed;
+            }
         }
     }
 }
