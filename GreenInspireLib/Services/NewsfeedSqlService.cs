@@ -58,6 +58,7 @@ namespace GreenInspireLib.Services
             return newsfeed;
         }
 
+
         public void DeleteNewsfeed(int newsfeedId)
         {
             var newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId);

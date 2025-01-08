@@ -56,6 +56,21 @@ namespace GreenInspireLib.BusinessLogicLayer
 
         }
 
+        public NewsfeedWithCategoryDTO AddNewsfeed(Category category, Newsfeed newsfeed)
+        {
+            newsfeed.Validate();
+            newsfeed.Title = newsfeed.Title.First().ToString().ToUpper() + newsfeed.Title.Substring(1).ToLower();
+            newsfeed.NewsfeedText = newsfeed.NewsfeedText.First().ToString().ToUpper() + newsfeed.NewsfeedText.Substring(1);
+            newsfeed.NewsfeedTimestamp = DateTime.Now;
+            newsfeed.NewsfeedImage = null;
+            newsfeed.Categories.Add(category);
+            newsfeed.CompanyUserId = newsfeed.CompanyUserId;
+            SqlContext.Newsfeeds.Add(newsfeed);
+            SqlContext.SaveChanges();
+            var newsfeedWithCategory = new NewsfeedWithCategoryDTO(newsfeed, newsfeed.CompanyUserId, category.CategoryName);
+            return newsfeedWithCategory;
+        }
+
         public Newsfeed AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
         {
             Newsfeed newNewsfeed = new Newsfeed();
