@@ -89,8 +89,5 @@ namespace GreenInspireLib.Services
             if (category == null) throw new ArgumentException("categorynavn findes ikke");
             return category.CategoryId;
         }
-
-
-
     }
 }

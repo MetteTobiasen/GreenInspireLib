@@ -71,14 +71,14 @@ namespace GreenInspireLib.BusinessLogicLayer
             return newsfeedWithCategory;
         }
 
-        public Newsfeed AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, string newsfeedImageFile, int userId)
+        public Newsfeed AddNewsfeedWithTransaction(string categoryName, Newsfeed newsfeed, int userId, string? newsfeedImageFile = null)
         {
             Newsfeed newNewsfeed = new Newsfeed();
             using (var transaction = SqlContext.Database.BeginTransaction())
             {
                 try
                 {
-                    newNewsfeed = NewsfeedSqlService.AddNewsfeed(newsfeed, newsfeedImageFile, userId);
+                    newNewsfeed = NewsfeedSqlService.AddNewsfeed(newsfeed, userId, newsfeedImageFile);
                     AddCategoryToNewsfeedCategoryList(categoryName, newsfeed.NewsfeedId);
                     CategorySqlService.AddCategory(categoryName);
                     AddNewsfeedToCategoryNewsfeedList(categoryName, newsfeed.NewsfeedId);

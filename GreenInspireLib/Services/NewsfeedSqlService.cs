@@ -45,18 +45,45 @@ namespace GreenInspireLib.Services
             return newsfeed;
         }
 
-        public Newsfeed AddNewsfeed(Newsfeed newsfeed, string imageFile, int companyUserId)
+        public Newsfeed AddNewsfeed(Newsfeed newsfeed, int categoryId, string? imageFile = null)
         {
             newsfeed.Validate();
             newsfeed.Title = newsfeed.Title.First().ToString().ToUpper() + newsfeed.Title.Substring(1).ToLower();
             newsfeed.NewsfeedText = newsfeed.NewsfeedText.First().ToString().ToUpper() + newsfeed.NewsfeedText.Substring(1);
             newsfeed.NewsfeedTimestamp = DateTime.Now;
-            newsfeed.NewsfeedImage = ConvertImageToByte(imageFile);
-            newsfeed.CompanyUserId = companyUserId; 
+            if (imageFile != null)
+            {
+                newsfeed.NewsfeedImage = ConvertImageToByte(imageFile);
+            }else
+            {
+                newsfeed.NewsfeedImage = null;
+            }
+            var category = SqlContext.Categories.FirstOrDefault(c => c.CategoryId == categoryId);
+            if (category == null) throw new ArgumentException("category with that id don't exsist");
+            newsfeed.Categories.Add(category);
             SqlContext.Newsfeeds.Add(newsfeed);
             SqlContext.SaveChanges();
             return newsfeed;
         }
+
+        //public Newsfeed AddNewsfeed(Newsfeed newsfeed, int companyUserId, string? imageFile = null)
+        //{
+        //    newsfeed.Validate();
+        //    newsfeed.Title = newsfeed.Title.First().ToString().ToUpper() + newsfeed.Title.Substring(1).ToLower();
+        //    newsfeed.NewsfeedText = newsfeed.NewsfeedText.First().ToString().ToUpper() + newsfeed.NewsfeedText.Substring(1);
+        //    newsfeed.NewsfeedTimestamp = DateTime.Now;
+        //    newsfeed.CompanyUserId = newsfeed.CompanyUserId; 
+        //    if(imageFile != null)
+        //    {
+        //        newsfeed.NewsfeedImage = ConvertImageToByte(imageFile);
+        //    }else
+        //    {
+        //        newsfeed.NewsfeedImage = null;
+        //    }
+        //    SqlContext.Newsfeeds.Add(newsfeed);
+        //    SqlContext.SaveChanges();
+        //    return newsfeed;
+        //}
 
 
         public void DeleteNewsfeed(int newsfeedId)
@@ -103,8 +130,7 @@ namespace GreenInspireLib.Services
         }
 
         public Byte[] ConvertImageToByte(string imagePath) 
-        {
-            //if (string.IsNullOrWhiteSpace(imagePath)) throw new ArgumentException("Image path cannot be null or empty.", nameof(imagePath));           
+        {        
             try
             {
                 Byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
@@ -121,44 +147,6 @@ namespace GreenInspireLib.Services
             }
         }
 
-        //public void ValidateImage(string filePath, string? outputPath = null) // Added return type 'void' and made outputPath nullable
-        //{
-        //    int maxWidth = 1920;
-        //    int maxHeight = 1080;
-
-        //    try
-        //    {
-        //        // Check if file exists
-        //        if (!System.IO.File.Exists(filePath))
-        //        {
-        //            Console.WriteLine("File does not exist.");
-        //            return; // Exit if file does not exist
-        //        }
-
-        //        using (var tempStream = new System.IO.MemoryStream(System.IO.File.ReadAllBytes(filePath)))
-        //        {
-        //            using (Image image = image.Load(tempStream)) 
-        //            {
-        //                int width = image.Width;
-        //                int height = image.Height;
-
-        //                // Check if the resolution is valid
-        //                if (!(width <= maxWidth && height <= maxHeight))
-        //                {
-        //                    Console.WriteLine($"Image size is not valid, maximum size is: {maxWidth}x{maxHeight} pixels.");
-        //                }
-
-        //                Console.WriteLine($"Image resolution is too large: {width}x{height} pixels. Resizing to fit {maxWidth}x{maxHeight} pixels.");
-        //            } 
-        //        }
-        //        // Load the image
-                
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"An error occurred: {ex.Message}");
-        //    }
-        //}
     }
 }
 

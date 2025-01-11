@@ -7,6 +7,7 @@ using Azure.Core.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System;
+using Azure.Core;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -60,22 +61,38 @@ namespace GreenInspireAPI.Controllers
             return Ok(newsfeed);
         }
 
+        //[HttpPost]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public ActionResult<NewsfeedWithCategoryDTO> AddNewsfeed([FromBody] AddNewsfeedRequest request)
+        //{
+        //    try
+        //    {
+        //        var newsfeedToAdd = _newsfeedLogic.AddNewsfeed(request.category, request.newsfeed);
+        //        return Created("/" + newsfeedToAdd.newsfeedId, newsfeedToAdd);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+            
+            
+        //}
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<NewsfeedWithCategoryDTO> AddNewsfeed([FromBody] AddNewsfeedRequest request)
+        public ActionResult<Newsfeed> AddNewsfeed([FromBody] Newsfeed newsfeed, int categoryId, string? imageFile = null)
         {
             try
             {
-                var newsfeedToAdd = _newsfeedLogic.AddNewsfeed(request.category, request.newsfeed);
-                return Created("/" + newsfeedToAdd.newsfeedId, newsfeedToAdd);
+                var newsfeedToAdd = _newsfeedSqlService.AddNewsfeed(newsfeed, categoryId, imageFile);
+                return Created("/" + newsfeedToAdd.NewsfeedId, newsfeedToAdd);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-            
-            
         }
 
         //[HttpPost]
@@ -95,6 +112,9 @@ namespace GreenInspireAPI.Controllers
         //        return BadRequest(ex.Message);
         //    }
         //}
+
+
+
 
         [HttpPost("AddNewsfeedToCategory")]
         [ProducesResponseType(StatusCodes.Status201Created)]
