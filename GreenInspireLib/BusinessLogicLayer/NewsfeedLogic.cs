@@ -38,8 +38,11 @@ namespace GreenInspireLib.BusinessLogicLayer
             {
                 //var category = news.Categories.FirstOrDefault();
                 //if (category == null) throw new ArgumentException("category findes ikke");
-                string category = "Energi og ressourcer";
-                NewsfeedWithCategoryDTO objektToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, category /*category.CategoryName*/);
+                //string category = "Energi og ressourcer";
+                int categoryId = GetCategoryIdFromNewsfeedId(news.NewsfeedId);
+                var category = CategorySqlService.GetCategoryById(categoryId);
+
+                NewsfeedWithCategoryDTO objektToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, /*category*/ category.CategoryName);
                 newsfeedsWithCategory.Add(objektToAdd);
             }
             return newsfeedsWithCategory;
@@ -164,5 +167,47 @@ namespace GreenInspireLib.BusinessLogicLayer
                 return newsfeed;
             }
         }
+        public int GetCategoryIdFromNewsfeedId(int newsfeedId)
+        {
+            int categoryId;
+            string query = "SELECT Category_Id FROM Newsfeed_Category WHERE Newsfeed_Id = @newsfeedId";
+            using (var connection = new SqlConnection("Data Source=DESKTOP-3V4HCC3;Initial Catalog=GreenInspire;Integrated Security=True; TrustServerCertificate=True"))
+            {
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@newsfeedId", newsfeedId);
+                connection.Open();
+                var result = command.ExecuteScalar();
+                if (result == null) throw new ArgumentException("No category found for the given newsfeed id");
+                categoryId = Convert.ToInt32(result);
+            }
+            return categoryId;
+        }
+        public void InsertImageToNewsfeed(int newsfeedId, string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+            {
+                throw new ArgumentException("Image path cannot be null or empty");
+            }
+
+            byte[] imageBytes;
+            try
+            {
+                imageBytes = System.IO.File.ReadAllBytes(imagePath);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Error reading image file: {ex.Message}");
+            }
+
+            var newsfeed = SqlContext.Newsfeeds.FirstOrDefault(n => n.NewsfeedId == newsfeedId)
+                ?? throw new ArgumentException("Newsfeed with that id doesn't exist");
+
+            newsfeed.NewsfeedImage = imageBytes;
+            SqlContext.Update(newsfeed);
+            SqlContext.SaveChanges();
+           
+        }
+
+
     }
 }

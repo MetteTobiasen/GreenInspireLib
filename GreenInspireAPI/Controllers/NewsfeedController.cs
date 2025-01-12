@@ -20,7 +20,7 @@ namespace GreenInspireAPI.Controllers
         private NewsfeedLogic _newsfeedLogic;
         private NewsfeedSqlService _newsfeedSqlService;
 
-        
+
 
         public NewsfeedController(NewsfeedLogic newsfeedLogic, NewsfeedSqlService newsfeedSqlService)
         {
@@ -75,8 +75,8 @@ namespace GreenInspireAPI.Controllers
         //    {
         //        return BadRequest(ex.Message);
         //    }
-            
-            
+
+
         //}
 
         [HttpPost]
@@ -93,6 +93,22 @@ namespace GreenInspireAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("AddImageToNewsfeed/{newsfeedId}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public void AddImageToNewsfeed(int newsfeedId, [FromBody] string imagePath)
+        {
+            try
+            {
+                _newsfeedLogic.InsertImageToNewsfeed(newsfeedId, imagePath);
+     
+            }catch (Exception ex)
+            {
+                
+            }
+
         }
 
         //[HttpPost]
