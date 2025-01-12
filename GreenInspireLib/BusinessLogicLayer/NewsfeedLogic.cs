@@ -36,13 +36,11 @@ namespace GreenInspireLib.BusinessLogicLayer
 
             foreach (var news in newsfeeds)
             {
-                //var category = news.Categories.FirstOrDefault();
-                //if (category == null) throw new ArgumentException("category findes ikke");
-                //string category = "Energi og ressourcer";
                 int categoryId = GetCategoryIdFromNewsfeedId(news.NewsfeedId);
                 var category = CategorySqlService.GetCategoryById(categoryId);
+                if (category == null) throw new ArgumentException("kan ikke finde categoryName");
 
-                NewsfeedWithCategoryDTO objektToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, /*category*/ category.CategoryName);
+                NewsfeedWithCategoryDTO objektToAdd = new NewsfeedWithCategoryDTO(news, news.CompanyUserId, category.CategoryName);
                 newsfeedsWithCategory.Add(objektToAdd);
             }
             return newsfeedsWithCategory;
