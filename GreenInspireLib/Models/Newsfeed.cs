@@ -53,9 +53,9 @@ public partial class Newsfeed
         {
             throw new ArgumentException("Title cannot be empty");
         }
-        if (Title.Length > 30)
+        if (Title.Length > 50)
         {
-            throw new ArgumentOutOfRangeException("Title cannot be longer than 30 characters");
+            throw new ArgumentOutOfRangeException("Title cannot be longer than 50 characters");
         }
         
     }
