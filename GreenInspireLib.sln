@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenInspireLib", "GreenInspireLib\GreenInspireLib.csproj", "{B1DC2D91-CE81-4877-9BBB-E0CBE6DDDCB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenInspireAPI", "GreenInspireAPI\GreenInspireAPI.csproj", "{7EE2771C-873F-4974-B90C-1CD717D9C5E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenInspireAPI", "GreenInspireAPI\GreenInspireAPI.csproj", "{7EE2771C-873F-4974-B90C-1CD717D9C5E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenInspireLibTests", "GreenInspireLibTests\GreenInspireLibTests.csproj", "{D691DEED-CE1B-4393-BFA1-BD54611BA26F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7EE2771C-873F-4974-B90C-1CD717D9C5E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EE2771C-873F-4974-B90C-1CD717D9C5E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EE2771C-873F-4974-B90C-1CD717D9C5E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D691DEED-CE1B-4393-BFA1-BD54611BA26F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D691DEED-CE1B-4393-BFA1-BD54611BA26F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D691DEED-CE1B-4393-BFA1-BD54611BA26F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D691DEED-CE1B-4393-BFA1-BD54611BA26F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

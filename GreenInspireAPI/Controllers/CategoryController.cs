@@ -40,6 +40,17 @@ namespace GreenInspireAPI.Controllers
             return Ok(category);
         }
 
+        [HttpGet("idByName/{name}")]
+        public ActionResult<int> GetCategoryIdByName(string name)
+        {
+            int categoryId = _sqlService.GetIdByCategoryName(name);
+            if (categoryId == -1)
+            {
+                return NoContent();
+            }
+            return Ok(categoryId);
+        }
+
         // POST api/<CategoryController>
         //[HttpPost]
         //public void AddCategory([FromBody] string value)

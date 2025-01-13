@@ -1,4 +1,5 @@
 ﻿using GreenInspireLib.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -82,7 +83,11 @@ namespace GreenInspireLib.Services
             return SqlContext.Categories.Any(c => c.CategoryName.ToLower() == categoryName.ToLower());
         }
 
-
-
+        public int GetIdByCategoryName(string categoryName)
+        {
+            var category = SqlContext.Categories.FirstOrDefault(c => c.CategoryName.ToLower() == categoryName.ToLower());
+            if (category == null) throw new ArgumentException("categorynavn findes ikke");
+            return category.CategoryId;
+        }
     }
 }
