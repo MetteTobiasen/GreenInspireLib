@@ -66,25 +66,6 @@ namespace GreenInspireLib.Services
             return newsfeed;
         }
 
-        //public Newsfeed AddNewsfeed(Newsfeed newsfeed, int companyUserId, string? imageFile = null)
-        //{
-        //    newsfeed.Validate();
-        //    newsfeed.Title = newsfeed.Title.First().ToString().ToUpper() + newsfeed.Title.Substring(1).ToLower();
-        //    newsfeed.NewsfeedText = newsfeed.NewsfeedText.First().ToString().ToUpper() + newsfeed.NewsfeedText.Substring(1);
-        //    newsfeed.NewsfeedTimestamp = DateTime.Now;
-        //    newsfeed.CompanyUserId = newsfeed.CompanyUserId; 
-        //    if(imageFile != null)
-        //    {
-        //        newsfeed.NewsfeedImage = ConvertImageToByte(imageFile);
-        //    }else
-        //    {
-        //        newsfeed.NewsfeedImage = null;
-        //    }
-        //    SqlContext.Newsfeeds.Add(newsfeed);
-        //    SqlContext.SaveChanges();
-        //    return newsfeed;
-        //}
-
 
         public void DeleteNewsfeed(int newsfeedId)
         {
