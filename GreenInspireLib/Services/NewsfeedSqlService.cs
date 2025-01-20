@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 //using static System.Net.Mime.MediaTypeNames;
 //using System.Drawing;
 using SixLabors.ImageSharp;
+using GreenInspireLib.BusinessLogicLayer;
+using Microsoft.Data.SqlClient;
 
 
 
@@ -29,8 +31,9 @@ namespace GreenInspireLib.Services
             List<Newsfeed> newsfeeds = new(SqlContext.Newsfeeds.AsNoTracking().ToList());
             if (searchQuery != null)
             {
-                newsfeeds = newsfeeds.Where(n => n.Title.ToLower().Contains(searchQuery.ToLower())).ToList();
-                newsfeeds = newsfeeds.Where(n => n.Categories.Any(c => c.CategoryName.ToLower().Contains(searchQuery.ToLower()))).ToList();
+                //newsfeeds = newsfeeds.Where(n => n.Title.ToLower().Contains(searchQuery.ToLower())).ToList();
+                //newsfeeds = newsfeeds.Where(n => n.Categories.Any(c => c.CategoryName.ToLower().Contains(searchQuery.ToLower()))).ToList();
+                newsfeeds = GetNewsfeedsFromSearchQuery(searchQuery);
             }
             return newsfeeds;
         }
@@ -128,6 +131,35 @@ namespace GreenInspireLib.Services
             }
         }
 
+        public List<Newsfeed> GetNewsfeedsFromSearchQuery(string searchQuery)
+        {
+            string query = $"SELECT * FROM Newsfeed WHERE Title LIKE '%' + @searchQuery + '%'";
+            using (var connection = new SqlConnection("Data Source=DESKTOP-3V4HCC3;Initial Catalog=GreenInspire;Integrated Security=True; TrustServerCertificate=True"))
+            {
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@searchQuery", searchQuery);
+                connection.Open();
+                var result = command.ExecuteReader();
+                if (!result.HasRows) throw new ArgumentException("No newsfeed with this search Query");
+
+                List<Newsfeed> newsfeeds = new List<Newsfeed>();
+                while (result.Read())
+                {
+                    Newsfeed newsfeed = new Newsfeed
+                    {
+                        NewsfeedId = result.GetInt32(result.GetOrdinal("Newsfeed_Id")),
+                        Title = result.GetString(result.GetOrdinal("Title")),
+                        NewsfeedText = result.GetString(result.GetOrdinal("Newsfeed_Text")),
+                        NewsfeedTimestamp = result.GetDateTime(result.GetOrdinal("Newsfeed_Timestamp")),
+                        CompanyUserId = result.GetInt32(result.GetOrdinal("Company_User_Id"))
+
+
+                    };
+                    newsfeeds.Add(newsfeed);
+                }
+                return newsfeeds; // Return the list of newsfeeds
+            }
+        }
     }
 }
 

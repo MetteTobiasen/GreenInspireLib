@@ -39,6 +39,17 @@ namespace GreenInspireAPI.Controllers
             return Ok(companyUser);
         }
 
+        [HttpGet("idByName/{name}")]
+        public ActionResult<int> GetCompanyIdByName(string name)
+        {
+            int companyId = _sqlService.GetIdByCompanyName(name);
+            if (companyId == -1)
+            {
+                return NoContent();
+            }
+            return Ok(companyId);
+        }
+
         // POST api/<CompanyController>
         [HttpPost]
         public void Post([FromBody] string value)

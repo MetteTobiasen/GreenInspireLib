@@ -40,6 +40,13 @@ namespace GreenInspireLib.Services
             return user;
         }
 
+        public int GetIdByCompanyName(string companyName)
+        {
+            var companyUser = SqlContext.CompanyUsers.FirstOrDefault(c => c.CompanyName.ToLower() == companyName.ToLower());
+            if (companyUser == null) throw new ArgumentException("company navn findes ikke");
+            return companyUser.CompanyUserId;
+        }
+
         public CompanyUser AddUser(CompanyUser user, string logoFile)
         {
             user.Validate();

@@ -180,6 +180,36 @@ namespace GreenInspireLib.BusinessLogicLayer
             }
             return categoryId;
         }
+
+        public List<Newsfeed> GetNewsfeedsFromSearchQuery(string searchQuery)
+        {
+            string query = $"SELECT * FROM Newsfeed WHERE Title LIKE '%' + @searchQuery + '%'"; 
+            using (var connection = new SqlConnection("Data Source=DESKTOP-3V4HCC3;Initial Catalog=GreenInspire;Integrated Security=True; TrustServerCertificate=True"))
+            {
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@searchQuery", searchQuery);
+                connection.Open();
+                var result = command.ExecuteReader();
+                if (!result.HasRows) throw new ArgumentException("No newsfeed with this search Query");
+
+                List<Newsfeed> newsfeeds = new List<Newsfeed>();
+                while (result.Read())
+                {
+                    Newsfeed newsfeed = new Newsfeed
+                    {
+                        NewsfeedId = result.GetInt32(result.GetOrdinal("Newsfeed_Id")),
+                        Title = result.GetString(result.GetOrdinal("Title")),
+                        NewsfeedText = result.GetString(result.GetOrdinal("Newsfeed_Text")),
+                        NewsfeedTimestamp = result.GetDateTime(result.GetOrdinal("Newsfeed_Timestamp")),
+                        CompanyUserId = result.GetInt32(result.GetOrdinal("Company_User_Id"))
+
+                        
+                    };
+                    newsfeeds.Add(newsfeed);
+                }
+                return newsfeeds; // Return the list of newsfeeds
+            }
+        }
         public void InsertImageToNewsfeed(int newsfeedId, string imagePath)
         {
             if (string.IsNullOrEmpty(imagePath))
